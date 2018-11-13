@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -67,6 +68,14 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 //        Log.i("App", "Started here.");
     }
+
+//    private void checkInsideFence(List<Geofence> l) {
+//        Geofence g
+//        for(Geofence g : l) {
+//
+//            Location loc = g.getRequestId()
+//        }
+//    }
 
 
 

@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -22,7 +23,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static android.content.ContentValues.TAG;
 
@@ -72,11 +75,14 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 Log.i(TAG, "Geofence transition event error");
             }
         }
+        else {
+            Log.i("IntentLog", "Intent is null");
+        }
     }
 
     private void callWebService(String relGeofenceLocation) throws JSONException {
         RequestQueue queue = Volley.newRequestQueue(this);
-        String endpoint = "<insert endpoint here>";
+        String endpoint = "http://msecbrad.byethost24.com/write.php?i=1";
         JSONObject postparams = new JSONObject();
         Date currentTime = Calendar.getInstance().getTime();
         postparams.put("Timestamp", currentTime.toString());
@@ -92,7 +98,14 @@ public class GeofenceTransitionsIntentService extends IntentService {
             public void onErrorResponse(VolleyError error) {
                 Log.i(TAG, "Webservice error : \n" + error.toString());
             }
-        });
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Cookie", "__test=734c8a774d31c5db2e4a9eee0def9224");
+                return super.getHeaders();
+            }
+        };
         queue.add(jsonObjectRequest);
     }
 
