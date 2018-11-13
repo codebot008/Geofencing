@@ -23,7 +23,9 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+
     private GeofencingClient mGeofencingClient;
+    final int MY_PERMISSION_REQUEST_FINE_LOCATION = 1;
     private PendingIntent mGeofencePendingIntent;
 
     private GeofencingRequest getGeofencingRequest(List<Geofence> geofenceList) {
@@ -34,9 +36,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private List<Geofence> createGeofenceList() {
+        Log.i("Message", "Inside createGeofenceList()");
         List<Geofence> geofenceList = new ArrayList<Geofence>();
         Geofence geofence = new Geofence.Builder().setRequestId("NBA").
-                setCircularRegion(37.399330, -122.102160, 100).
+                setCircularRegion(37.410109, -122.059732, 10).
                 setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER | Geofence.GEOFENCE_TRANSITION_EXIT).
                 setExpirationDuration(Geofence.NEVER_EXPIRE).
                 build();
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
 
     private PendingIntent getGeofencePendingIntent() {
         // Reuse the PendingIntent if we already have it.
+        Log.i("Message", "Inside getGeofencePendingIntent()");
         if (mGeofencePendingIntent != null) {
             return mGeofencePendingIntent;
         }
@@ -54,13 +58,28 @@ public class MainActivity extends AppCompatActivity {
         // calling addGeofences() and removeGeofences().
         mGeofencePendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
                 FLAG_UPDATE_CURRENT);
+        Log.i("Pending Intent", "Returning from getGeofencePendingIntent()");
         return mGeofencePendingIntent;
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+//        Log.i("App", "Started here.");
+    }
+
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.i("Log : ", "App started.");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Log.i("Message","No permissions granted, asking for permissions now.");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_REQUEST_FINE_LOCATION);
+        }
 
         mGeofencingClient = LocationServices.getGeofencingClient(this);
 
@@ -68,11 +87,9 @@ public class MainActivity extends AppCompatActivity {
 
         mGeofencePendingIntent = getGeofencePendingIntent();
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            return;
-        }
-        mGeofencingClient.addGeofences(getGeofencingRequest(mGeofenceLst), getGeofencePendingIntent())
+        Log.i("Message", "Just before actual geofence trigger.");
+        mGeofencingClient.addGeofences(getGeofencingRequest(mGeofenceLst), mGeofencePendingIntent)
                 .addOnSuccessListener(this, new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
@@ -82,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
                 .addOnFailureListener(this, new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        e.printStackTrace();
                         Log.i("Failure", "Geofences could not be added.");
                     }
                 });
